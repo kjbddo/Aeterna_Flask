@@ -90,3 +90,28 @@ class AIService:
                 raise AIServiceError(f"이미지 분석 모델을 사용할 수 없습니다: {error_msg}")
             
             raise AIServiceError(f"이미지 분석 중 오류가 발생했습니다: {error_msg}")
+    
+    def ask_text(self, prompt: str) -> str:
+        """
+        텍스트 기반 질의응답
+        
+        Args:
+            prompt: 질문 프롬프트
+            
+        Returns:
+            AI 응답 텍스트
+        """
+        try:
+            message = HumanMessage(content=prompt)
+            response = self.llm.invoke([message])
+            return response.content
+            
+        except Exception as e:
+            error_msg = str(e)
+            logger.error(f"텍스트 질의 API 호출 실패: {error_msg}")
+            
+            # API 키 관련 에러
+            if "api_key" in error_msg.lower() or "authentication" in error_msg.lower() or "invalid" in error_msg.lower():
+                raise AIServiceError("OpenAI API 키가 유효하지 않습니다. .env 파일을 확인해주세요.")
+            
+            raise AIServiceError(f"텍스트 질의 중 오류가 발생했습니다: {error_msg}")
